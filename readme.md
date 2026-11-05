@@ -1,22 +1,22 @@
-# Cricket Match Data Pipeline (YAML to PostgreSQL)
+# Cricket Match Data Pipeline (YAML to SQLite)
 
-An automated pipeline that parses raw cricket match data from a YAML file, transforms it into normalized SQL insertions, and populates a PostgreSQL database using Python and Shell scripting.
+An automated pipeline that parses raw cricket match data from a YAML file, transforms it into normalized SQL insertions, and populates an embedded SQLite database using Python and Shell scripting.
 
 ---
 
 ## Project Structure
 
-* **`cricket.yaml`**: Input file containing raw match data
-* **`schema.sql`**: DDL file containing relational database definitions and constraints.
+* **`<input_yaml_file>`**: Input file containing raw match data.
+* **`<schema_sql_file>/schema.sql`**: DDL file containing relational database definitions, tables, and constraints.
 * **`main.py`**: Python parser that extracts YAML data and writes SQL `INSERT` statements to `output.sql`.
-* **`build.sh`**: Shell script that automates starting PostgreSQL, recreating `cricket_db`, running `schema.sql`, and executing `output.sql`.
-* **`output.sql`**: Auto-generated SQL insert queries produced by `main.py`.
+* **`build.sh`**: Shell script that automates running `main.py`, initializing the SQLite database file, applying `schema.sql`, and executing `output.sql`.
+* **`<output_sql_file>/output.sql`**: Auto-generated SQL insert queries produced by `main.py`.
 
 ---
 
 ## Database Schema
 
- layout contains **6 core tables**:
+The relational layout contains **6 core tables**:
 
 1. **`Match_Type`**: Tracks game formats (e.g., ODI, T20).
 2. **`Team`**: Unique team records.
@@ -29,68 +29,17 @@ An automated pipeline that parses raw cricket match data from a YAML file, trans
 
 ## Prerequisites
 
-Ensure the following are installed and configured on your Linux system:
+Ensure the following are installed on your Linux system:
 * **Python 3**
-* **PostgreSQL** service (`postgresql`)
+* **SQLite3** (`sqlite3` command-line utility)
 
 ---
 
 ## How to Run
 
-1. Make sure your input file is named `cricket.yaml` and placed in the project root folder.
-2. Grant execution permissions to the build script:
+The `build.sh` script accepts filenames via command-line arguments.
+
+1. Grant execution permissions to the build script:
    ```bash
    chmod +x build.sh
-   ```
-3. Run the complete pipeline script:
-   ```bash
-   ./build.sh
-   ```
-
-*(Note: The build script will prompt for your system password to start the PostgreSQL service if it is not running).*
-
----
-
-## Inspecting the Database
-
-After a successful build, you can inspect the database directly using `psql`.
-
-### 1. Connect to the Database
-```bash
-sudo -u postgres psql -d cricket_db
-```
-
-### 2. Useful Inspection Commands
-
-* **List all tables:**
-  ```sql
-  \dt
-  ```
-
-* **Inspect table structure (columns & data types):**
-  ```sql
-  \d Player
-  \d Match_Record
-  ```
-
-* **Query table rows:**
-  ```sql
-  -- View all teams
-  SELECT * FROM Team;
-
-  -- View top 10 players
-  SELECT * FROM Player LIMIT 10;
-
-  -- View match result and winner details
-  SELECT matchID, date, venue, matchResult FROM Match;
-
-  -- View first 10 deliveries of an inning
-  SELECT matchRecordID, over, delivery, strikerRuns, total 
-  FROM Match_Record 
-  LIMIT 10;
-  ```
-
-* **Exit `psql`:**
-  ```sql
-  \q
-  ```
+   ./build.sh <input_yaml_file> <sqlite_db_file> [schema.sql] [output_sql_file]

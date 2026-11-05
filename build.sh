@@ -2,11 +2,16 @@
 
 set -euo pipefail
 
-INPUT_FILE="cricket.yaml"
-OUTPUT_FILE="output.sql"
-SCHEMA_FILE="schema.sql"
-DB_NAME="cricket_db"
-DB_USER="postgres"
+if [ -z "${1:-}" ] || [ -z "${2:-}" ]; then
+	echo "Error: Missing arguments."
+	echo "Usage: ./build.sh <yaml_input_file> <sqlite_db_file> [schema_sql_file] [output_sql_file]"
+	exit 1
+fi
+
+INPUT_FILE="$1"
+DB_FILE="$2"
+SCHEMA_FILE="${3:-schema.sql}" # Default
+OUTPUT_FILE="${4:-output.sql}"
 
 INTERPRETER="python3"
 SCRIPT="main.py"
@@ -16,21 +21,22 @@ if [ ! -f "$INPUT_FILE" ]; then
     exit 0
 fi
 
-"$INTERPRETER" "$SCRIPT" < "$INPUT_FILE" > "$OUTPUT_FILE" 2> "error.log"
+"$INTERPRETER" "$SCRIPT" "$INPUT_FILE" > "$OUTPUT_FILE"
 
 if [ -s "$OUTPUT_FILE" ]; then
-    echo "    [Success] Execution finished. Output generated at '$OUTPUT_FILE'."[cite: 5]
+    echo "    [Success] Execution finished. Output generated at '$OUTPUT_FILE'."
 else
     echo "    [Error] Program executed but output file is empty." >&2
     exit 1
 fi
 
-sudo systemctl start postgresql
+if [ -f "$DB_FILE" ]; then
+    rm "$DB_FILE"
+    echo "    [Info] Removed existing database file '$DB_FILE'."
+fi
 
-dropdb -U "$DB_USER" --if-exists "$DB_NAME"
+sqlite3 "$DB_FILE" < "$SCHEMA_FILE"
 
-createdb -U "$DB_USER" "$DB_NAME"
+sqlite3 "$DB_FILE" < "$OUTPUT_FILE"
 
-psql -U "$DB_USER" -d "$DB_NAME" -f "$SCHEMA_FILE"
-
-psql -U "$DB_USER" -d "$DB_NAME" -f "$OUTPUT_FILE"
+echo "    [Success] Database saved to '$DB_FILE'."

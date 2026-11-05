@@ -5,7 +5,7 @@ inning will have (team, overs[])
 overs will have (overNo, deliveries[])
 deliveries will have (deliveryNo, nonStriker, batsman, bowler, batsmanRuns, extrasRuns, totalRuns)
 '''
-import json # we can use it to print the dictionary in json like format
+import sys #direct line of communication btw python code and os
 
 Match = {
 	"matchID": 1,
@@ -20,7 +20,13 @@ Match = {
 	"inning": [],#will contain the 1st and 2nd inning
 }
 
-with open("cricket.yaml", "r") as file:
+if len(sys.argv) < 2:
+	print("Argv Error")
+	sys.exit(1)
+
+file_path = sys.argv[1]
+
+with open(file_path, "r") as file:
 	lines = file.readlines()
 
 key = ["dates:" , "match_type:", "outcome:", "winner:", "by:", "runs:", "players:",
