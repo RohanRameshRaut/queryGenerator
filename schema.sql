@@ -1,6 +1,6 @@
 CREATE TABLE Team (
     teamID INT PRIMARY KEY,
-    teamName VARCHAR(100) NOT NULL UNIQUE
+    teamName VARCHAR(50) NOT NULL UNIQUE
 );
 
 CREATE TABLE Player (
@@ -20,12 +20,21 @@ CREATE TABLE Match (
     team1 INT NOT NULL REFERENCES Team(teamID),
     team2 INT NOT NULL REFERENCES Team(teamID),
     date DATE NOT NULL,
-    venue VARCHAR(100) NOT NULL,
-    matchResult VARCHAR(100) NOT NULL,
-    matchWinner INT REFERENCES Team(teamID),
-    tossDecision VARCHAR(100) NOT NULL,
-    tossWinner INT NOT NULL REFERENCES Team(teamID),
-    CONSTRAINT chk_different_teams CHECK (team1 != team2)
+    venue VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Match_Result (
+	resultID INT PRIMARY KEY,
+    	matchID INT NOT NULL REFERENCES Match(matchID),
+	matchResult VARCHAR(100) NOT NULL,
+	matchWinner INT REFERENCES Team(teamID)
+);
+
+CREATE TABLE Toss_Result (
+	tossResultID INT PRIMARY KEY,
+    	matchID INT NOT NULL REFERENCES Match(matchID),
+	tossDecision VARCHAR(100) NOT NULL,
+	tossWinner INT NOT NULL REFERENCES Team(teamID)
 );
 
 CREATE TABLE Inning (
@@ -36,16 +45,35 @@ CREATE TABLE Inning (
     runs INT NOT NULL CHECK (runs >= 0)
 );
 
-CREATE TABLE Match_Record (
-    matchRecordID INT PRIMARY KEY,
-    inningID INT NOT NULL REFERENCES Inning(inningID),
-    over INT NOT NULL CHECK (over >= 0),
-    delivery INT NOT NULL CHECK (delivery >= 0),
-    striker INT NOT NULL REFERENCES Player(playerID),
-    nonStriker INT NOT NULL REFERENCES Player(playerID),
-    bowler INT NOT NULL REFERENCES Player(playerID),
-    strikerRuns INT NOT NULL CHECK (strikerRuns >= 0),
-    extras INT NOT NULL CHECK (extras >= 0),
-    total INT NOT NULL CHECK (total = extras + strikerRuns),
-    CONSTRAINT chk_different_players CHECK (striker != nonStriker AND striker != bowler AND nonStriker != bowler)
+CREATE TABLE Over (
+	overID INT PRIMARY KEY,
+	inningID INT NOT NULL REFERENCES Inning(inningID),
+	overNumber INT NOT NULL CHECK (overNumber >= 0),
+	bowler INT NOT NULL REFERENCES Player(playerID),
+	runs INT NOT NULL CHECK (runs >= 0)
 );
+
+CREATE TABLE Wicket (
+	wicketID INT PRIMARY KEY,
+	playerOut INT NOT NULL REFERENCES Player(playerID),
+	fielder INT REFERENCES Player(playerID),
+	kind varchar(50) NOT NULL
+);
+
+CREATE TABLE Runs (
+	runsID INT PRIMARY KEY,
+	strikerRuns INT NOT NULL CHECK (strikerRuns >= 0),
+	extras INT NOT NULL CHECK (extras >= 0),
+	total INT NOT NULL CHECK (total = extras + strikerRuns)
+);
+
+CREATE TABLE Delivery (
+	deliveryID INT PRIMARY KEY,
+	overID INT NOT NULL REFERENCES Over(overID),
+	deliveryNo INT NOT NULL CHECK (deliveryNo >= 0),
+	striker INT NOT NULL REFERENCES Player(playerID),
+	nonStriker INT NOT NULL REFERENCES Player(playerID)
+	runsID INT REFERENCES Runs(runsID),
+	wicketID INT REFERENCES Wicket(wicketID)
+);
+
