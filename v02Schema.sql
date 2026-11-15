@@ -2,6 +2,7 @@
 -BLOB is a data type in sqlite, which can be used to store raw bytes as it is, it manages size automatically. 
 -just check for size while inserting so you dont end up inserting too much.
 -for 1 byte information we can use varchar(1) or BLOB also.
+- we'll go with the varchar(1) cause it would be hard to query on BLOB as dmk sir mentioned .
 - we'll make the primary key from the data itselft, we'll use ID as pk when composite pk is too big
 
 */
