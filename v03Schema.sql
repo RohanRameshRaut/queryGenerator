@@ -50,6 +50,7 @@ CREATE TABLE Match (
 --	matchWinner VARCHAR(1) REFERENCES Team(teamID),
 --	tossDecision VARCHAR(1) NOT NULL,
 --	tossWinner VARCHAR(1) NOT NULL REFERENCES Team(teamID)
+--	pk(matchID)
 );
 
 CREATE TABLE Inning (
@@ -58,6 +59,7 @@ CREATE TABLE Inning (
 --    teamID VARCHAR(1) NOT NULL REFERENCES Team(teamID),
 --    runs VARCHAR(2) NOT NULL CHECK (runs >= 0)
 	value VARCHAR(2) --1bit = inningNo, 1bit = matchID, 1bit = teamID, 10bit = runs, 3bit waste
+	--(pk(inningNo))
 );
 
 CREATE TABLE Over (
@@ -66,34 +68,31 @@ CREATE TABLE Over (
 --	bowler VARCHAR(1) NOT NULL REFERENCES Player(playerID),
 --	runs VARCHAR(1) NOT NULL CHECK (runs >= 0),
 --	PRIMARY KEY (inningNo, overNumber)
-	value VARCHAR(2) --1bit = inningNo, 6bit = overNumber, 4bit = bowlerID, 6bit = runs
-);
-
-CREATE TABLE Runs (
-	runsID VARCHAR(1) PRIMARY KEY,
-	strikerRuns VARCHAR(1) NOT NULL CHECK (strikerRuns >= 0),
-	extras VARCHAR(1) NOT NULL CHECK (extras >= 0),
-	total VARCHAR(1) NOT NULL CHECK (total = extras + strikerRuns)
+	value VARCHAR(3) --1bit = inningNo, 6bit = overNumber, 4bit = bowlerID, 6bit = runs, 7bit waste
+	--(pk(inningNo, overNumber))
 );
 
 CREATE TABLE Delivery (
-	inningNo VARCHAR(1) NOT NULL REFERENCES Inning(inningNo),
-	overNumber VARCHAR(1) NOT NULL CHECK (overNumber >= 0),
-	deliveryNo VARCHAR(1) NOT NULL CHECK (deliveryNo >= 0),
-	striker VARCHAR(1) NOT NULL REFERENCES Player(playerID),
-	nonStriker VARCHAR(1) NOT NULL REFERENCES Player(playerID),
-	runsID VARCHAR(1) REFERENCES Runs(runsID),
-	PRIMARY KEY (inningNo, overNumber, deliveryNo), --here we should use deliveryID as pk which is 1 byte only
-	FOREIGN KEY (inningNo, overNumber) REFERENCES Over(inningNo, overNumber)
+	--inningNo VARCHAR(1) NOT NULL REFERENCES Inning(inningNo),
+	--overNumber VARCHAR(1) NOT NULL CHECK (overNumber >= 0),
+	--deliveryNo VARCHAR(1) NOT NULL CHECK (deliveryNo >= 0),
+	--striker VARCHAR(1) NOT NULL REFERENCES Player(playerID),
+	--nonStriker VARCHAR(1) NOT NULL REFERENCES Player(playerID),
+	--PRIMARY KEY (inningNo, overNumber, deliveryNo), --here we should use deliveryID as pk which is 1 byte only
+	--FOREIGN KEY (inningNo, overNumber) REFERENCES Over(inningNo, overNumber)
+	value VARCHAR(3) --1bit = inningNo, 6bit = overNumber, 4bit = deliveryNo, 1bit = strikerID, 1bit = nonStrikerID, 3bit = strikerRuns, 3bit = extras, 5bit waste
+	--(pk(inningNo, overNumber, deliveryNo))
 );
 
 CREATE TABLE Wicket (
-	wicketID VARCHAR(1) PRIMARY KEY,
-	playerOut VARCHAR(1) NOT NULL REFERENCES Player(playerID),
-	fielder VARCHAR(1) REFERENCES Player(playerID),
+--	wicketID VARCHAR(1) PRIMARY KEY,
+--	playerOut VARCHAR(1) NOT NULL REFERENCES Player(playerID),
+--	fielder VARCHAR(1) REFERENCES Player(playerID),
 	kind varchar(20) NOT NULL,
-	inningNo VARCHAR(1) NOT NULL REFERENCES Inning(inningNo),
-	overNumber VARCHAR(1) NOT NULL CHECK (overNumber >= 0),
-	deliveryNo VARCHAR(1) NOT NULL CHECK (deliveryNo >= 0),
-	FOREIGN KEY (inningNo, overNumber, deliveryNo) REFERENCES Delivery(inningNo, overNumber, deliveryNo)
+--	inningNo VARCHAR(1) NOT NULL REFERENCES Inning(inningNo),
+--	overNumber VARCHAR(1) NOT NULL CHECK (overNumber >= 0),
+--	deliveryNo VARCHAR(1) NOT NULL CHECK (deliveryNo >= 0),
+--	FOREIGN KEY (inningNo, overNumber, deliveryNo) REFERENCES Delivery(inningNo, overNumber, deliveryNo)
+	value VARCHAR(3) --1bit = inningNo, 6bit = overNumber, 4bit = deliveryNo, 4bit = playerOutID, 4bit = fielderID, 5bit waste
+	--(pk(inningNo, overNumber, deliveryNo))
 );
