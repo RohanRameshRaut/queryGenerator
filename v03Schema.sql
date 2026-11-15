@@ -88,11 +88,11 @@ CREATE TABLE Wicket (
 --	wicketID VARCHAR(1) PRIMARY KEY,
 --	playerOut VARCHAR(1) NOT NULL REFERENCES Player(playerID),
 --	fielder VARCHAR(1) REFERENCES Player(playerID),
-	kind varchar(20) NOT NULL,
+--	kind varchar(20) NOT NULL,
 --	inningNo VARCHAR(1) NOT NULL REFERENCES Inning(inningNo),
 --	overNumber VARCHAR(1) NOT NULL CHECK (overNumber >= 0),
 --	deliveryNo VARCHAR(1) NOT NULL CHECK (deliveryNo >= 0),
 --	FOREIGN KEY (inningNo, overNumber, deliveryNo) REFERENCES Delivery(inningNo, overNumber, deliveryNo)
-	value VARCHAR(3) --1bit = inningNo, 6bit = overNumber, 4bit = deliveryNo, 4bit = playerOutID, 4bit = fielderID, 5bit waste
+	value VARCHAR(3) --1bit = inningNo, 6bit = overNumber, 4bit = deliveryNo, 4bit = playerOutID, 4bit = fielderID, 4bit = kind, 1bit waste
 	--(pk(inningNo, overNumber, deliveryNo))
 );
