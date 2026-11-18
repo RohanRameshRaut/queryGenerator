@@ -1,11 +1,3 @@
-/*
--BLOB is a data type in sqlite, which can be used to store raw bytes as it is, it manages size automatically. 
--just check for size while inserting so you dont end up inserting too much.
--for 1 byte information we can use varchar(1) or BLOB also.
-- we'll go with the varchar(1) cause it would be hard to query on BLOB as dmk sir mentioned .
-- we'll make the primary key from the data itselft, we'll use ID as pk when composite pk is too big
-
-*/
 
 CREATE TABLE Team (
     teamID VARCHAR(1) PRIMARY KEY,
@@ -45,8 +37,6 @@ CREATE TABLE Inning ( -- check v03 for optimal
 );
 
 CREATE TABLE Over (
---	inningNo VARCHAR(1) NOT NULL REFERENCES Inning(inningNo),
---	overNumber VARCHAR(1) NOT NULL CHECK (overNumber >= 0),
 	overInning VARCHAR(1) PRIMARY KEY, -- 1bit = inningNo, 6bit = overNumber, 1bit waste
 	bowler VARCHAR(1) NOT NULL REFERENCES Player(playerID), -- 5bit = bowler(1bit for team), 3bit waste
 	runs VARCHAR(1) NOT NULL CHECK (runs >= 0),
@@ -61,17 +51,9 @@ CREATE TABLE Runs ( --8bit
 );
 
 CREATE TABLE Delivery ( -- 30bit
---	inningNo VARCHAR(1) NOT NULL REFERENCES Inning(inningNo),
---	overNumber VARCHAR(1) NOT NULL CHECK (overNumber >= 0),
 	overInning VARCHAR(1) NOT NULL REFERENCES Over(overInning), 
---	deliveryNo VARCHAR(1) NOT NULL CHECK (deliveryNo >= 0),
---	striker VARCHAR(1) NOT NULL REFERENCES Player(playerID),
---	nonStriker VARCHAR(1) NOT NULL REFERENCES Player(playerID),
-	deliveryBatsman VARCHAR(2), -- deliveryNo = 4bit, striker = 5bit(1bit for team), nonStriker = 5bit(1bit for team), 2bit waste
---	runsID VARCHAR(1) REFERENCES Runs(runsID),
+	deliveryBatsman VARCHAR(2), -- deliveryNo = 4bit, striker = 6bit(1bit for team & 1bit for inningNo), nonStriker = 6bit(1bit for team & 1bit for inningNo)
 	runs VARCHAR(1) REFERENCES Runs(runs) --1st 3bit = strikerRuns, last 5bit = extras
---	PRIMARY KEY (inningNo, overNumber, deliveryNo), --here we should use deliveryID as pk which is 1 byte only
---	FOREIGN KEY (inningNo, overNumber) REFERENCES Over(inningNo, overNumber)
 	PRIMARY KEY (overInning, deliveryBatsman)
 );
 
